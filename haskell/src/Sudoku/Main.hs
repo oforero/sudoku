@@ -12,8 +12,8 @@ sudoku ["-h"] = putStrLn "I will give you some help"
 -- sudoku ["-g", s] = print $ show $ readBoard s
 sudoku [file] = do
      g <- fromFile file
-     let g'  = hiddenSingle g
-     let g'' = applyStrategy hiddenSingle g
+     let g'  = nakedSingle g
+     let g'' = applyStrategy nakedSingle g
      printBoard g
      putStrLn ""
      printBoard $ g'

@@ -1,5 +1,6 @@
 module Sudoku.Types (Value, Options(..), Board, Cell, Unit,
-                     readBoard, showBoard, showBoard', cells, allUnits, possible, simplifyBoard) where
+                     readBoard, showBoard, showBoard', cells, allUnits,
+                     possible, simplifyBoard, isUnsolvable, isSolution) where
 
 import           Data.Char (digitToInt)
 import           Data.List (union, (\\))
@@ -34,9 +35,16 @@ instance Show Options where
         where
             nums = ["", "B", "C", "D", "E", "F", "G", "H", "I"]
 
-
 diff :: Options -> Options -> Options
 (Options vs) `diff` (Options ws) = Options $ vs \\ ws
+
+isEmpty :: Options -> Bool
+isEmpty (Options []) = True
+isEmpty _ = False
+
+isAssigned :: Options -> Bool
+isAssigned (Options [_]) = True
+isAssigned _ = False
 
 {-
      A  B  C   D  E  F   G  H  I
@@ -127,6 +135,12 @@ simplify (ex, rs) opss = map (removeIfNeighbor ex rs opss) cells
 
 simplifyBoard :: Board ->  [(Cell, Options)] -> Board
 simplifyBoard (BoardC opss) rs = BoardC $ foldr simplify opss rs
+
+isUnsolvable :: Board -> Bool
+isUnsolvable (BoardC opss) = any isEmpty opss
+
+isSolution :: Board -> Bool
+isSolution (BoardC opss) = all isAssigned opss
 
 -- Haskell does not support String interpolation out of the box,
 -- so I faked it by mapping over the following string.
