@@ -1,10 +1,11 @@
 module Sudoku.Types (Value, Options(..), Board, Cell, Unit,
                      readBoard, showBoard, showBoard', cells, allUnits,
-                     possible, simplifyBoard, isUnsolvable, isSolution) where
+                     possible, simplifyBoard, isUnsolvable, isSolvable,
+                     isSolution, isAssigned, expandBoard) where
 
-import           Data.Char (digitToInt)
-import           Data.List (union, (\\))
-
+import           Data.Char  (digitToInt)
+import           Data.List  (findIndex, union, (\\))
+import           Data.Maybe (fromJust)
 
 -- Use a data type instead of integers, to avoid ending up with wrong values in a cell
 data Value = One | Two | Three | Four | Five | Six | Seven | Eight | Nine deriving (Eq, Ord)
@@ -45,6 +46,17 @@ isEmpty _ = False
 isAssigned :: Options -> Bool
 isAssigned (Options [_]) = True
 isAssigned _ = False
+
+isExpandable :: Options -> Bool
+isExpandable (Options []) = False
+isExpandable (Options [_]) = False
+isExpandable _ = True
+
+expand :: Options -> [Options]
+expand (Options vs) = map builder vs
+    where
+        builder v = Options [v]
+
 
 {-
      A  B  C   D  E  F   G  H  I
@@ -139,8 +151,22 @@ simplifyBoard (BoardC opss) rs = BoardC $ foldr simplify opss rs
 isUnsolvable :: Board -> Bool
 isUnsolvable (BoardC opss) = any isEmpty opss
 
+isSolvable :: Board -> Bool
+isSolvable = not . isUnsolvable
+
 isSolution :: Board -> Bool
 isSolution (BoardC opss) = all isAssigned opss
+
+expandBoard :: Board -> [Board]
+expandBoard (BoardC opss)
+    | all (not.isExpandable) opss = [BoardC opss]
+    | otherwise = map builder ops
+        where
+            n = fromJust $ findIndex isExpandable opss
+            ops = expand $ opss !! n
+            prefix = take n opss
+            suffix = drop (n+1) opss
+            builder v = BoardC $ prefix ++ v:suffix
 
 -- Haskell does not support String interpolation out of the box,
 -- so I faked it by mapping over the following string.

@@ -12,19 +12,17 @@ sudoku ["-h"] = putStrLn "I will give you some help"
 -- sudoku ["-g", s] = print $ show $ readBoard s
 sudoku [file] = do
      g <- fromFile file
-     let g'  = nakedSingle g
-     let g'' = applyStrategy nakedSingle g
-     printBoard g
+     -- let g'  = nakedSingle g
+     -- let g'' = applyStrategy nakedSingle g
+     -- let g''' = search g''
+     let s = solve g
+     printBoard' g
      putStrLn ""
-     printBoard $ g'
-     putStrLn ""
-     printBoard' $ g'
-     putStrLn ""
-     printBoard $ g''
-     putStrLn ""
-     printBoard' $ g
-     putStrLn ""
-     printBoard' $ g''
+     -- printBoard $ applyStrategy nakedSingle $ applyStrategy nakedSingle g
+     printB s
+     where
+         printB Unsolvable   = putStrLn "Unsolvable"
+         printB (Solution s) = printBoard' s
 
 
 printBoard :: Board -> IO ()
