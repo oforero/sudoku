@@ -1,16 +1,18 @@
-module Sudoku.Types (Cell, Unit, Board, readBoard, showBoard, allUnits) where
+module Sudoku.Types (Value, Options(..), Board, Cell, Unit,
+                     readBoard, showBoard, showBoard', cells, allUnits, possible, simplifyBoard) where
 
 import           Data.Char (digitToInt)
+import           Data.List (union, (\\))
 
 
 -- Use a data type instead of integers, to avoid ending up with wrong values in a cell
-data Values = One | Two | Three | Four | Five | Six | Seven | Eight | Nine deriving (Eq, Ord)
+data Value = One | Two | Three | Four | Five | Six | Seven | Eight | Nine deriving (Eq, Ord)
 
 -- All possible values
-values :: [Values]
+values :: [Value]
 values = [One, Two, Three, Four, Five, Six, Seven, Eight, Nine]
 
-instance Enum Values where
+instance Enum Value where
     toEnum n  = values !! (n-1)
     fromEnum e  = el values e 1
         where
@@ -18,17 +20,23 @@ instance Enum Values where
                | v == w = n
                | otherwise = el vs w (n+1)
 
-instance Show Values where
+instance Show Value where
     show e = show $ fromEnum e
 
 -- Use a datatype to represent the possible values a cell can take
 -- A sudoku board will be solve if all cells have only one possible value (that follows the rules)
 -- and will be impossible to solve if one of the cells have empty options
-data Options = Options [Values]
+data Options = Options [Value] deriving Eq
 instance Show Options where
     show (Options [])  = "⊥"
     show (Options [n]) = show n
-    show _             = "•"
+    show (Options xs)  = nums !! ((length xs) - 1)
+        where
+            nums = ["", "B", "C", "D", "E", "F", "G", "H", "I"]
+
+
+diff :: Options -> Options -> Options
+(Options vs) `diff` (Options ws) = Options $ vs \\ ws
 
 {-
      A  B  C   D  E  F   G  H  I
@@ -48,7 +56,15 @@ instance Show Options where
 -- I'll keep the board as a single row of 80 possible values,
 -- The possible values are maintained as a list of elements
 -- An empty list means that no assignment is possible
-data Board = BoardC [Options]
+type Cell = Int
+type Unit = [Cell]
+
+cells :: [Cell]
+cells = [0..80]
+
+-------
+
+data Board = BoardC [Options] deriving Eq
 
 fromInt :: Int -> Options
 fromInt 0 = Options values
@@ -63,12 +79,11 @@ readInts = map digitToInt
 readBoard :: String -> Board
 readBoard = fromList . readInts
 
+possible :: Cell -> Board -> Options
+possible c (BoardC xs) = xs !! c
+
 -- Sudoku players call the rows, columns and boxes units
 -- Write some utility functions to map a cell from the board to a unit
-
-type Cell = Int
-type Unit = [Cell]
-
 rowS :: [Cell]
 rowS = [0,9..72]
 allRows :: [Unit]
@@ -95,6 +110,23 @@ allBoxes = map (buildBox box1) [0, 3, 6, 27, 30, 33, 54, 57, 60]
 
 allUnits :: [Unit]
 allUnits = allRows ++ allCols ++ allBoxes
+
+isNeighborOf :: Cell -> Cell -> Bool
+isNeighborOf c c' = any (bothIn c c') allUnits
+    where
+        bothIn c c' u = c `elem` u && c' `elem` u
+
+simplify :: (Cell, Options) -> [Options] -> [Options]
+simplify (ex, rs) opss = map (removeIfNeighbor ex rs opss) cells
+    where
+        removeIfNeighbor :: Cell -> Options -> [Options] -> Cell -> Options
+        removeIfNeighbor c rs opss c'
+            | c == c' = opss !! c'
+            | c `isNeighborOf` c' = (opss !! c') `diff` rs
+            | otherwise = opss !! c'
+
+simplifyBoard :: Board ->  [(Cell, Options)] -> Board
+simplifyBoard (BoardC opss) rs = BoardC $ foldr simplify opss rs
 
 -- Haskell does not support String interpolation out of the box,
 -- so I faked it by mapping over the following string.
@@ -128,3 +160,10 @@ showBoard b = map showRow board
            where
                i = read s :: Int
         showRow r = unwords $ map showCell $ words r
+
+showBoard' :: Board -> [String]
+showBoard' b = map (map (replace ['B'..'I'] '•')) $ showBoard b
+    where
+        replace rs v c
+            | c `elem` rs = v
+            | otherwise = c

@@ -4,18 +4,34 @@ import           Data.Char          (isSpace)
 import           Data.List.Split    (chunksOf)
 import           System.Environment (getArgs)
 
-import           Sudoku.Types       (Board, readBoard, showBoard)
+import           Sudoku.Strategy
+import           Sudoku.Types       (Board, readBoard, showBoard, showBoard')
 
 sudoku :: [String] -> IO ()
 sudoku ["-h"] = putStrLn "I will give you some help"
 -- sudoku ["-g", s] = print $ show $ readBoard s
 sudoku [file] = do
      g <- fromFile file
+     let g'  = hiddenSingle g
+     let g'' = applyStrategy hiddenSingle g
      printBoard g
+     putStrLn ""
+     printBoard $ g'
+     putStrLn ""
+     printBoard' $ g'
+     putStrLn ""
+     printBoard $ g''
+     putStrLn ""
+     printBoard' $ g
+     putStrLn ""
+     printBoard' $ g''
 
 
 printBoard :: Board -> IO ()
 printBoard mb = mapM_ putStrLn $ showBoard mb
+
+printBoard' :: Board -> IO ()
+printBoard' mb = mapM_ putStrLn $ showBoard' mb
 
 fromFile :: String -> IO Board
 fromFile f = do
