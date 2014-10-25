@@ -1,0 +1,6 @@
+# Ignore the Haskell build directory and cabal sandbox
+dist
+.cabal*
+
+# Ignore emacs intermediate files
+.#*
