@@ -1,11 +1,8 @@
 module Sudoku.Strategy where
 
-import           Sudoku.Types (Board, Cell, Options (..), cells, expandBoard,
+import           Sudoku.Board (Board, Cell, Options, cells, expandBoard,
                                isAssigned, isSolution, isSolvable, isUnsolvable,
                                possible, simplifyBoard)
-
-import           Data.List    (findIndex)
-import           Data.Maybe   (fromJust)
 
 type Strategy = (Board -> Board)
 
