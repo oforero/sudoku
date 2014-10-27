@@ -84,14 +84,16 @@
 (defn pos-to-ops [pos coll]
   (mapv hash-set (into [] (nth coll pos))))
 
-(defn is-expandable [ops]
+(defn is-expandable? [ops]
   (> (count ops) 1))
 
-(defn expand-board [board]
+(defn expand-board [{status :Status opss :Board :as board}]
   ""
-  (let [opss  (:Board board)
-        pos   (first-index-of is-expandable opss)
-        pre   (take (+ pos 1) opss)
-        suf   (drop (+ pos 2) opss)
-        exp   (pos-to-ops pos opss)]
-    (mapv (fn [v] {:Status :New :Board (apply vector (concat pre [v] suf))}) exp)))
+  (cond
+   (= status :Solvable) (let [pos   (first-index-of is-expandable? opss)
+                              pre   (take (+ pos 1) opss)
+                              suf   (drop (+ pos 2) opss)
+                              exp   (pos-to-ops pos opss)]
+                          (mapv (fn [v] {:Status :New :Board (apply vector (concat pre [v] suf))}) exp))
+   (= status :Unsolvable) []
+   (= status :Solved) [board] ))

@@ -37,7 +37,6 @@
   (let [f   (first boards)
         r   (rest  boards)
         nbs (expand-and-reduce f)]
-    (println (count (:Board f)))
     (if (solution? f) [f] (recur (concat nbs r)))))
 
   (defn solve [board]
