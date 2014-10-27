@@ -7,7 +7,7 @@ import           Test.Framework.Providers.HUnit
 import           Test.HUnit
 
 import           Sudoku.Board                   (Board, readBoard)
-import           Sudoku.Strategy
+import           Sudoku.Strategy                (Solution (..), solve)
 
 main :: IO ()
 main = defaultMainWithOpts
