@@ -91,9 +91,9 @@
   ""
   (cond
    (= status :Solvable) (let [pos   (first-index-of is-expandable? opss)
-                              pre   (take (+ pos 1) opss)
-                              suf   (drop (+ pos 2) opss)
+                              pre   (take pos opss)
+                              suf   (drop (+ pos 1) opss)
                               exp   (pos-to-ops pos opss)]
-                          (mapv (fn [v] {:Status :New :Board (apply vector (concat pre [v] suf))}) exp))
-   (= status :Unsolvable) []
-   (= status :Solved) [board] ))
+                          (map (fn [v] {:Status :New :Board (concat pre [v] suf)}) exp))
+   (= status :Unsolvable) (seq)
+   (= status :Solved) board ))

@@ -1,6 +1,6 @@
 (ns sudoku.strategy
   (:use [sudoku.types :only [cells]]
-        [sudoku.board :only [simplify-board, expand-board, solvable?, solution?]]))
+        [sudoku.board :only [simplify-board, expand-board, solvable? ,unsolvable?, solution?]]))
 
 (defn get-cells [pred? opss]
   ""
@@ -29,16 +29,30 @@
 ;; Board -> [Board]
 (defn expand-and-reduce [board]
   ""
-  (filter solvable? (map (fn [b] (apply-strategy naked-single b)) (expand-board board))))
+  (let [b (expand-board board)]
+    (if (seq? b)
+      (filter solvable? (map (fn [b'] (apply-strategy naked-single b')) b))
+      b)))
 
 ;; [Board] -> [Board]
-(defn search [boards]
+(defn disp
   ""
-  (let [f   (first boards)
-        r   (rest  boards)
-        nbs (expand-and-reduce f)]
-    (if (solution? f) [f] (recur (concat nbs r)))))
+  ([] :Empty)
+  ([b & bs] (if (nil? b) :Skip (:Status b))))
 
-  (defn solve [board]
-    "Solve a sudoku board and returned wrapped in a map"
-    (search [board]))
+(defmulti search disp)
+(defmethod search :Empty [] {:Status :Unsolvable} )
+(defmethod search :Skip [b & bs] (apply search bs))
+(defmethod search :Solved [b & bs] b)
+(defmethod search :Unsolvable [b & bs] (apply search bs))
+(defmethod search :Unsolvable [b & bs] (apply search bs))
+(defmethod search :New [b & bs]  (apply search (apply-strategy naked-single b) bs))
+
+(defmethod search :Solvable [b & bs]
+  (let [b' (expand-and-reduce b)
+        bs' (concat b' bs)]
+    (apply search bs')))
+
+(defn solve [board]
+  "Solve a sudoku board and returned wrapped in a map"
+  (search board))
