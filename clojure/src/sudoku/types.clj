@@ -17,6 +17,14 @@
    :else " • "
    ))
 
+(defn show-value-csv [v]
+  "Convert a vector of values to a sintr representation"
+  (cond
+   (= 0 (count v)) "⊥"
+   (= 1 (count v)) (str (+ 1 (.indexOf possible (first v))))
+   :else "•"
+   ))
+
 (defn options-from-int [i]
   "Return a vector of possible values"
   (if (= 0 i)

@@ -1,6 +1,6 @@
 (ns sudoku.board
   (:use [clojure.set :only [difference, union]]
-        [sudoku.types :only [options-from-int, show-value, cells, all-houses]]))
+        [sudoku.types :only [options-from-int, show-value, show-value-csv, cells, all-houses]]))
 
 (def ^:private pretty-board
   (apply str
@@ -18,6 +18,18 @@
           "%s %s %s | %s %s %s | %s %s %s \n"
        "‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒‒\n"]))
 
+(def ^:private csv-board
+  (apply str
+      ["%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"
+       "%s,%s,%s,%s,%s,%s,%s,%s,%s\n"]))
+
 (defn ^:private read-board-string [s]
   "Read the board from a String"
   (apply vector
@@ -32,6 +44,10 @@
 (defn show-board-pretty [{b :Board}]
   "Return a string with the formatted board"
   (apply format pretty-board (map show-value b)))
+
+(defn show-board-csv [{b :Board}]
+  "Return a string with the formatted board"
+  (apply format csv-board (map show-value-csv b)))
 
 (defn- in?
   "true if seq contains elm"
