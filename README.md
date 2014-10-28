@@ -13,3 +13,4 @@ It solves all the sudokus from project Euler and a the list of hard sudokus from
 For the specifics on each implementation follow the link:
 
 * [Haskell] (haskell/README.md) 
+* [Clojure] (clojure/README.md) 
