@@ -1,4 +1,4 @@
-# Sudoku Solver in Clojure
+# Sudoku solver in Clojure
 
 ## Installation
 
@@ -9,6 +9,7 @@ It supports the simple input of a board as a string or a csv file
 
     $ lein run -s 200080300060070084030500209000105408000000000402706000301007040720040060004010003
     $ lein run -csv ../grids/email_example.sk
+    $ lein run -p -csv ../grids/email_example.sk
 
 
 ## Test
